@@ -424,8 +424,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnLat: 37.4219999
   spawnLon: -122.0840575
-  spawnRadiusMeters: 20
-  blockPrefab: {fileID: 0}
+  spawnRadiusMeters: 999999
+  blockPrefab: {fileID: 3903977881179249439, guid: 6cae471160c8b86448fcd6894126aa53, type: 3}
   spawnOnce: 1
 --- !u!114 &927264849
 MonoBehaviour:
