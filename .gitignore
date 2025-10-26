@@ -1,0 +1,52 @@
+# ===== Unity =====
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+SysInfo.txt
+
+# Auto-generated solution/IDE files
+*.csproj
+*.sln
+*.suo
+*.user
+*.unityproj
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+
+# Crash/Profiler dumps
+*.stacktrace
+*.dmp
+
+# ===== OS Garbage =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===== Xcode (after iOS export) =====
+DerivedData/
+*.xcworkspace/
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+Pods/
+Podfile.lock
+
+# ===== Android build artifacts =====
+.gradle/
+.gradle/*
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# ===== VS/JetBrains =====
+.vs/
+.idea/
+*.sln.DotSettings.user
