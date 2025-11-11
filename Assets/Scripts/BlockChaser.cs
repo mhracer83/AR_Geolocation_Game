@@ -1,81 +1,72 @@
 using UnityEngine;
 
-
 [RequireComponent(typeof(CharacterController))]
 public class BlockChaser : MonoBehaviour
 {
     [Header("Movement")]
-    public float speed = 1.5f; // m/s
-    public float stopDistance = 1.2f; // don’t overlap the user
-    public float steeringAvoidStrength = 2.0f; // strength of obstacle sidestep
-    public float obstacleProbeDistance = 1.0f; // raycast distance
-
+    public float speed = 1.5f;          // meters per second
+    public float stopDistance = 2.0f;   // how far from user to stop (front of block)
 
     [Header("Grounding")]
     public float gravity = -9.81f;
 
-
     private CharacterController _cc;
     private Vector3 _velocity;
-
 
     private void Awake()
     {
         _cc = GetComponent<CharacterController>();
-        if (_cc.height < 0.3f) _cc.height = 0.3f; // small block collider
-        if (_cc.radius < 0.15f) _cc.radius = 0.15f;
-    }
 
+        // Make sure the collider roughly matches the visible block.
+        // Adjust these numbers to match your cube size.
+        if (_cc.height < 1.0f) _cc.height = 1.0f;
+        if (_cc.radius < 0.3f) _cc.radius = 0.3f;
+        _cc.center = new Vector3(0f, _cc.height * 0.5f, 0f);
+    }
 
     private void Update()
     {
         var cam = Camera.main;
         if (!cam) return;
 
-
+        // Direction to user on XZ plane
         Vector3 toUser = cam.transform.position - transform.position;
         Vector3 toUserXZ = Vector3.ProjectOnPlane(toUser, Vector3.up);
         float dist = toUserXZ.magnitude;
 
+        float desiredStopDistance = stopDistance + _cc.radius;
 
-        Vector3 desired = Vector3.zero;
-        if (dist > stopDistance)
-            desired = toUserXZ.normalized * speed;
+        Vector3 moveDir = Vector3.zero;
 
+        if (dist > desiredStopDistance)
+        {
+            moveDir = toUserXZ.normalized;
+        }
 
-        // Simple obstacle avoidance via raycasts in forward/left/right
-        Vector3 forward = transform.forward;
-        Vector3 left = Quaternion.Euler(0, -45, 0) * forward;
-        Vector3 right = Quaternion.Euler(0, 45, 0) * forward;
+        // Constant-speed horizontal movement
+        Vector3 horizontal = Vector3.zero;
+        if (moveDir.sqrMagnitude > 0.0001f)
+        {
+            horizontal = moveDir * speed;
+        }
 
-
-        desired += AvoidDir(forward) + AvoidDir(left) + AvoidDir(right);
-
-
-        // Move & face
-        _velocity.x = desired.x;
-        _velocity.z = desired.z;
+        _velocity.x = horizontal.x;
+        _velocity.z = horizontal.z;
         _velocity.y += gravity * Time.deltaTime;
-
 
         _cc.Move(_velocity * Time.deltaTime);
 
-
-        Vector3 look = new Vector3(desired.x, 0, desired.z);
-        if (look.sqrMagnitude > 0.001f)
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(look), 8f * Time.deltaTime);
-    }
-
-
-    private Vector3 AvoidDir(Vector3 dir)
-    {
-        Ray ray = new Ray(transform.position + Vector3.up * 0.1f, dir);
-        if (Physics.Raycast(ray, out RaycastHit hit, obstacleProbeDistance))
+        // Always look at the player so it "tracks you with its eyes"
+        Vector3 lookDir = toUserXZ;
+        lookDir.y = 0f;
+        if (lookDir.sqrMagnitude > 0.001f)
         {
-            // steer away from obstacle normal (sidestep)
-            Vector3 away = Vector3.Cross(hit.normal, Vector3.up).normalized; // lateral
-            return away * steeringAvoidStrength;
+            Quaternion targetRot = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRot,
+                8f * Time.deltaTime
+            );
         }
-        return Vector3.zero;
     }
 }
